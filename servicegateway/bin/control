@@ -1,0 +1,85 @@
+#!/bin/bash
+
+#source $OPENSHIFT_CARTRIDGE_SDK_BASH
+
+function is_servicegateway_service_running() {
+ pidf="../pid/servicegateway.pid"
+
+ if [ -f ../pid]/servicegateway.pid ]; then
+       servicegateway_pid=$( cat ../pid/servicegateway.pid 2> /dev/null )
+        if ps --pid $servicegateway_pid 2>&1; then
+            return 0
+        fi
+    fi
+
+    return 1
+}
+ 
+function start() {
+    logf="../logs/servicegateway.log"
+
+    if is_servicegateway_service_running; then
+        echo "`date +"$FMT"`: Application 'hello' is already running; skipping start()"
+        return 0
+    fi
+
+}
+
+function stop() {
+    if [ -f ../pid/servicegateway.pid ]; then
+        servicegateway_pid=$( cat ../pid/servicegateway.pid 2> /dev/null )
+    fi
+
+    if [ -n "$servicegateway_pid" ]; then
+        logf="../logs/servicegateway.log"
+        echo "`date +"$FMT"`: Stopping application 'hello' ..." >> $logf
+        /bin/kill $servicegateway_pid
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            TIMEOUT="$STOPTIMEOUT"
+            while [ $TIMEOUT -gt 0 ] && is_servicegateway_service_running ; do
+                /bin/kill -0 "$servicegateway_pid" >/dev/null 2>&1 || break
+                sleep 1
+                let TIMEOUT=${TIMEOUT}-1
+            done
+        fi
+
+        echo "`date +"$FMT"`: Stopped servicegateway application 'hello'" >> $logf
+        rm -f ../pid/servicegateway.pid
+    else
+        echo "Warning: Application 'hello' server exists without a pid file.  Use force-stop to kill." 1>&2
+    fi
+}
+
+function status() {
+    if [ is_servicegateway_service_running ]; then
+        client_result "Application is running"
+    else
+        client_result "Application is not running"
+    fi
+}
+
+function tidy() {
+  client_message "Emptying log dir: ../logs"
+  shopt -s dotglob
+  rm -rf ../logs/*
+  rm -rf ../tmp/*
+}
+
+function catchall {
+    echo "not yet implemented"
+}
+
+
+case "$1" in
+  start) start ;;
+  stop) stop ;;
+  status) status ;;
+  tidy)  tidy    ;;
+  reload)      catchall ;;
+  tidy)        catchall ;;
+  pre-build)   catchall ;;
+  build)       catchall ;;
+  deploy)      catchall ;;
+  post-deploy) catchall ;;
+esac

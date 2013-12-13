@@ -1,0 +1,34 @@
+Name: servicegateway
+Cartridge-Short-Name: servicegateway
+Display-Name: ServiceGateway
+Version: "1.0"
+Website: https://github.com/cloudshiftuser/customcartridge
+Source-Url: https://github.com/cloudshiftuser/customcartridge.git
+Cartridge-Version: 0.1.0
+Cartridge-Vendor: cloudshift
+Categories:
+  - service
+  - gateway
+  - embedded
+Provides:
+  - servicegateway-1.0
+  - "servicegateway"
+Scaling:
+  Min: 1
+  Max: 1
+Group-Overrides:
+  - components:
+    - servicegateway-1.0
+Install-Build-Required: false
+Publishes:
+   connection-info:
+    Type: ENV:NET_TCP:connection-info
+Endpoints:
+  - Private-IP-Name:   IP
+    Private-Port-Name: PORT
+    Private-Port:      8080
+    Public-Port-Name:  PROXY_PORT
+    Mappings:
+      - Frontend:      ""
+        Backend:       ""
+        

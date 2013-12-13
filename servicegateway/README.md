@@ -1,0 +1,1 @@
+This cartridge is used for testing the custom cartridge in Openshift for acting as gateway to external service
